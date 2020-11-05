@@ -1,3 +1,4 @@
+import { filter } from "lodash";
 import { ErrorMapper } from "utils/ErrorMapper";
 
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
@@ -16,7 +17,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   for(const name in Game.creeps){
     creepNum++
   }
-  if(creepNum < 2){
+  if(creepNum < 5){
     Game.spawns['Spawn1'].createCreep([WORK, CARRY, MOVE]);
   }
   for(const name in Game.creeps){
@@ -40,22 +41,35 @@ export const loop = ErrorMapper.wrapLoop(() => {
       }
     }
 
-    // 去修路，或者升级控制器
-    if(creep.memory.task == 'building') {
-      const target = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
-      if(target) {
-          if(creep.build(target) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(target);
-          }
-      } else {
-        if(creep.room.controller) {
-          if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
-              creep.moveTo(creep.room.controller);
+    // 有未满的 spawn 或者 extension 就去填充
+    let con =creep.pos.findClosestByRange(FIND_STRUCTURES,{filter: (i) => {
+      return  (i.structureType == STRUCTURE_EXTENSION || i.structureType == STRUCTURE_SPAWN) &&
+        i.store[RESOURCE_ENERGY] != i.store.getCapacity(RESOURCE_ENERGY)
+    }})
+    if(con && creep.memory.task == 'building'){
+      if(creep.transfer(con, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+        creep.moveTo(con);
+      }
+    } else {
+      // 去修路，或者升级控制器
+      if(creep.memory.task == 'building') {
+        const target = creep.pos.findClosestByRange(FIND_CONSTRUCTION_SITES);
+        if(target) {
+            if(creep.build(target) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(target);
+            }
+        } else {
+          if(creep.room.controller) {
+            if(creep.upgradeController(creep.room.controller) == ERR_NOT_IN_RANGE) {
+                creep.moveTo(creep.room.controller);
+            }
           }
         }
-      }
 
+      }
     }
+
+
 
   }
 
