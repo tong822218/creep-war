@@ -17,8 +17,15 @@ export const loop = ErrorMapper.wrapLoop(() => {
   for (const name in Game.creeps) {
     creepNum++;
   }
-  if (creepNum < 5) {
-    Game.spawns.Spawn1.createCreep([WORK, CARRY, MOVE]);
+  if (creepNum < 3) {
+    Game.spawns.Spawn1.spawnCreep([WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], "worker", {
+      memory: {
+        role: "worker",
+        room: Game.spawns.Spawn1.room.name,
+        working: true,
+        task: "harvesting"
+      }
+    });
   }
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
