@@ -13,19 +13,21 @@ export const loop = ErrorMapper.wrapLoop(() => {
     }
   }
 
-  let creepNum = 0;
-  for (const name in Game.creeps) {
-    creepNum++;
-  }
+  const creepNum = Object.keys(Game.creeps).length;
+
   if (creepNum < 3) {
-    Game.spawns.Spawn1.spawnCreep([WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE], "worker", {
-      memory: {
-        role: "worker",
-        room: Game.spawns.Spawn1.room.name,
-        working: true,
-        task: "harvesting"
+    Game.spawns.Spawn1.spawnCreep(
+      [WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE],
+      "worker" + new Date().getTime().toString(),
+      {
+        memory: {
+          role: "worker",
+          room: Game.spawns.Spawn1.room.name,
+          working: true,
+          task: "harvesting"
+        }
       }
-    });
+    );
   }
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
@@ -52,7 +54,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
     const con = creep.pos.findClosestByRange(FIND_STRUCTURES, {
       filter: i => {
         return (
-          (i.structureType === STRUCTURE_EXTENSION || i.structureType == STRUCTURE_SPAWN) &&
+          (i.structureType === STRUCTURE_EXTENSION || i.structureType === STRUCTURE_SPAWN) &&
           i.store[RESOURCE_ENERGY] !== i.store.getCapacity(RESOURCE_ENERGY)
         );
       }
